@@ -32,9 +32,7 @@ class ComponentRosDockRosPortExtension : public ComponentRosDockExtension, publi
 {
 private:
 	ros::NodeHandle *nh;
-	
 	ComponentRosDockRosPortCallbacks *callbacksPtr;
-	
 	virtual int extensionExecution() override;
 public:
 	ComponentRosDockRosPortExtension();
@@ -44,7 +42,7 @@ public:
 	virtual void initialize(ComponentRosDock *component, int argc, char* argv[]) override;
 	virtual int onStartup() override;
 
-	inline ros::Publisher* getCurrent_pubPtr() {
+	inline ros::Publisher* getCharging_pubPtr() {
 		return &charging_pub;
 	}
 	inline ros::Publisher* getDock_action_goalPtr() {

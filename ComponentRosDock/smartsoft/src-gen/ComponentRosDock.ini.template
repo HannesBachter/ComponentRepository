@@ -99,6 +99,7 @@ roboticMiddleware ACE_SmartSoft
 # client port parameter
 
 [BaseStateServiceIn]
+initialConnect false
 serverName unknown
 serviceName unknown
 wiringName BaseStateServiceIn
@@ -106,6 +107,7 @@ interval 1
 roboticMiddleware ACE_SmartSoft
 
 [LaserServiceIn]
+initialConnect false
 serverName unknown
 serviceName unknown
 wiringName LaserServiceIn
@@ -121,7 +123,13 @@ interval 1
 roboticMiddleware ACE_SmartSoft
 
 ##########################
+## parameters of ComponentRosDockROS1InterfacesExtension
+
+##########################
 ## parameters of ComponentRosDockROSExtension
+
+##########################
+## parameters of ComponentRosDockRestInterfacesExtension
 
 ##########################
 ## parameters of OpcUaBackendComponentGeneratorExtension

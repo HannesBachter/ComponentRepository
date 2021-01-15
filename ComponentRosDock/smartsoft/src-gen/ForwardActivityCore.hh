@@ -27,9 +27,6 @@
 // include all interaction-observer interfaces
 #include <ForwardActivityObserverInterface.hh>
 
-#include <geometry_msgs/Twist.h>
-#include <sensor_msgs/LaserScan.h>
-#include <std_msgs/Bool.h>
 
 class ForwardActivityCore
 :	public SmartACE::ManagedTask
@@ -106,6 +103,5 @@ public:
 		return currentUpdateCount;
 	}
 	
-	void twist_sub_cb (const geometry_msgs::Twist::ConstPtr &msg);
 };
 #endif

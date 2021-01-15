@@ -21,6 +21,12 @@
 #define ROS_PORT_BASE_CLASS_H_
 
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/String.h>
+#include <sensor_msgs/LaserScan.h>
+#include <std_msgs/String.h>
+
+
 
 class ComponentRosDockRosPortBaseClass {
 public:
@@ -34,6 +40,12 @@ public:
 	ros::Subscriber twist_sub;
 	ros::Publisher undock_action_goal;
 	ros::Subscriber undock_action_result;
+	
+	void charging_pub_publish_ros_msg(const std_msgs::Bool &msg);
+	void dock_action_goal_publish_ros_msg(const std_msgs::String &msg);
+	void laser_pub_publish_ros_msg(const sensor_msgs::LaserScan &msg);
+	void undock_action_goal_publish_ros_msg(const std_msgs::String &msg);
+
 };
 
 #endif // ROS_PORT_BASE_CLASS_H_

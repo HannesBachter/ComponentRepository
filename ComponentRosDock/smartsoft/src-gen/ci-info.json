@@ -1,0 +1,5 @@
+{
+	"id" : "ComponentRosDock",
+	"type" : "Component",
+	"dependprojects" : [  "CommBasicObjects" , "CommNavigationObjects"  ]
+}

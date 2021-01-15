@@ -29,8 +29,6 @@
 // include all interaction-observer interfaces
 #include <DockActivityObserverInterface.hh>
 
-#include <std_msgs/String.h>
-#include <std_msgs/String.h>
 
 class DockActivityCore
 :	public SmartACE::ManagedTask
@@ -107,6 +105,5 @@ public:
 		return currentUpdateCount;
 	}
 	
-	void dock_action_result_cb (const std_msgs::String::ConstPtr &msg);
 };
 #endif

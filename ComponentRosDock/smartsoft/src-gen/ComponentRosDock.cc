@@ -35,7 +35,8 @@ ComponentRosDock::ComponentRosDock()
 	baseStateServiceIn = NULL;
 	baseStateServiceInInputTaskTrigger = NULL;
 	baseStateServiceInUpcallManager = NULL;
-	//componentRosDock = NULL;
+	baseStateServiceInInputCollector = NULL;
+	//coordinationPort = NULL;
 	//coordinationPort = NULL;
 	dockActivity = NULL;
 	dockActivityTrigger = NULL;
@@ -44,8 +45,11 @@ ComponentRosDock::ComponentRosDock()
 	laserServiceIn = NULL;
 	laserServiceInInputTaskTrigger = NULL;
 	laserServiceInUpcallManager = NULL;
+	laserServiceInInputCollector = NULL;
 	navigationVelocityServiceOut = NULL;
+	navigationVelocityServiceOutWrapper = NULL;
 	robotDockingEventServiceOut = NULL;
+	robotDockingEventServiceOutWrapper = NULL;
 	robotDockingEventServiceOutEventTestHandler = nullptr; 
 	undockActivity = NULL;
 	undockActivityTrigger = NULL;
@@ -69,11 +73,13 @@ ComponentRosDock::ComponentRosDock()
 	
 	connections.robotDockingEventServiceOut.serviceName = "RobotDockingEventServiceOut";
 	connections.robotDockingEventServiceOut.roboticMiddleware = "ACE_SmartSoft";
+	connections.baseStateServiceIn.initialConnect = false;
 	connections.baseStateServiceIn.wiringName = "BaseStateServiceIn";
 	connections.baseStateServiceIn.serverName = "unknown";
 	connections.baseStateServiceIn.serviceName = "unknown";
 	connections.baseStateServiceIn.interval = 1;
 	connections.baseStateServiceIn.roboticMiddleware = "ACE_SmartSoft";
+	connections.laserServiceIn.initialConnect = false;
 	connections.laserServiceIn.wiringName = "LaserServiceIn";
 	connections.laserServiceIn.serverName = "unknown";
 	connections.laserServiceIn.serviceName = "unknown";
@@ -110,8 +116,12 @@ ComponentRosDock::ComponentRosDock()
 	connections.undockActivity.priority = -1;
 	connections.undockActivity.cpuAffinity = -1;
 	
+	// initialize members of ComponentRosDockROS1InterfacesExtension
+	
 	// initialize members of ComponentRosDockROSExtension
 	rosPorts = 0;
+	
+	// initialize members of ComponentRosDockRestInterfacesExtension
 	
 	// initialize members of OpcUaBackendComponentGeneratorExtension
 	
@@ -150,6 +160,9 @@ void ComponentRosDock::setStartupFinished() {
 Smart::StatusCode ComponentRosDock::connectBaseStateServiceIn(const std::string &serverName, const std::string &serviceName) {
 	Smart::StatusCode status;
 	
+	if(connections.baseStateServiceIn.initialConnect == false) {
+		return Smart::SMART_OK;
+	}
 	std::cout << "connecting to: " << serverName << "; " << serviceName << std::endl;
 	status = baseStateServiceIn->connect(serverName, serviceName);
 	while(status != Smart::SMART_OK)
@@ -164,6 +177,9 @@ Smart::StatusCode ComponentRosDock::connectBaseStateServiceIn(const std::string 
 Smart::StatusCode ComponentRosDock::connectLaserServiceIn(const std::string &serverName, const std::string &serviceName) {
 	Smart::StatusCode status;
 	
+	if(connections.laserServiceIn.initialConnect == false) {
+		return Smart::SMART_OK;
+	}
 	std::cout << "connecting to: " << serverName << "; " << serviceName << std::endl;
 	status = laserServiceIn->connect(serverName, serviceName);
 	while(status != Smart::SMART_OK)
@@ -284,7 +300,11 @@ void ComponentRosDock::init(int argc, char *argv[])
 		// print out the actual parameters which are used to initialize the component
 		std::cout << " \nComponentDefinition Initial-Parameters:\n" << COMP->getParameters() << std::endl;
 		
+		// initializations of ComponentRosDockROS1InterfacesExtension
+		
 		// initializations of ComponentRosDockROSExtension
+		
+		// initializations of ComponentRosDockRestInterfacesExtension
 		
 		// initializations of OpcUaBackendComponentGeneratorExtension
 		
@@ -327,17 +347,21 @@ void ComponentRosDock::init(int argc, char *argv[])
 		// TODO: set minCycleTime from Ini-file
 		robotDockingEventServiceOutEventTestHandler = std::make_shared<RobotDockingEventServiceOutEventTestHandler>();
 		robotDockingEventServiceOut = portFactoryRegistry[connections.robotDockingEventServiceOut.roboticMiddleware]->createRobotDockingEventServiceOut(connections.robotDockingEventServiceOut.serviceName, robotDockingEventServiceOutEventTestHandler);
+		robotDockingEventServiceOutWrapper = new RobotDockingEventServiceOutWrapper(robotDockingEventServiceOut);
 		
 		// create client ports
 		baseStateServiceIn = portFactoryRegistry[connections.baseStateServiceIn.roboticMiddleware]->createBaseStateServiceIn();
 		laserServiceIn = portFactoryRegistry[connections.laserServiceIn.roboticMiddleware]->createLaserServiceIn();
 		navigationVelocityServiceOut = portFactoryRegistry[connections.navigationVelocityServiceOut.roboticMiddleware]->createNavigationVelocityServiceOut();
+		navigationVelocityServiceOutWrapper = new NavigationVelocityServiceOutWrapper(navigationVelocityServiceOut);
 		
 		// create InputTaskTriggers and UpcallManagers
-		baseStateServiceInInputTaskTrigger = new Smart::InputTaskTrigger<CommBasicObjects::CommBaseState>(baseStateServiceIn);
-		baseStateServiceInUpcallManager = new BaseStateServiceInUpcallManager(baseStateServiceIn);
-		laserServiceInInputTaskTrigger = new Smart::InputTaskTrigger<CommBasicObjects::CommMobileLaserScan>(laserServiceIn);
-		laserServiceInUpcallManager = new LaserServiceInUpcallManager(laserServiceIn);
+		baseStateServiceInInputCollector = new BaseStateServiceInInputCollector(baseStateServiceIn);
+		baseStateServiceInInputTaskTrigger = new Smart::InputTaskTrigger<CommBasicObjects::CommBaseState>(baseStateServiceInInputCollector);
+		baseStateServiceInUpcallManager = new BaseStateServiceInUpcallManager(baseStateServiceInInputCollector);
+		laserServiceInInputCollector = new LaserServiceInInputCollector(laserServiceIn);
+		laserServiceInInputTaskTrigger = new Smart::InputTaskTrigger<CommBasicObjects::CommMobileLaserScan>(laserServiceInInputCollector);
+		laserServiceInUpcallManager = new LaserServiceInUpcallManager(laserServiceInInputCollector);
 		
 		// create input-handler
 		
@@ -577,15 +601,19 @@ void ComponentRosDock::fini()
 	// destroy InputTaskTriggers and UpcallManagers
 	delete baseStateServiceInInputTaskTrigger;
 	delete baseStateServiceInUpcallManager;
+	delete baseStateServiceInInputCollector;
 	delete laserServiceInInputTaskTrigger;
 	delete laserServiceInUpcallManager;
+	delete laserServiceInInputCollector;
 
 	// destroy client ports
 	delete baseStateServiceIn;
 	delete laserServiceIn;
+	delete navigationVelocityServiceOutWrapper;
 	delete navigationVelocityServiceOut;
 
 	// destroy server ports
+	delete robotDockingEventServiceOutWrapper;
 	delete robotDockingEventServiceOut;
 	// destroy event-test handlers (if needed)
 	robotDockingEventServiceOutEventTestHandler;
@@ -613,7 +641,11 @@ void ComponentRosDock::fini()
 		portFactory->second->destroy();
 	}
 	
+	// destruction of ComponentRosDockROS1InterfacesExtension
+	
 	// destruction of ComponentRosDockROSExtension
+	
+	// destruction of ComponentRosDockRestInterfacesExtension
 	
 	// destruction of OpcUaBackendComponentGeneratorExtension
 	
@@ -692,6 +724,7 @@ void ComponentRosDock::loadParameter(int argc, char *argv[])
 		}
 		
 		// load parameters for client BaseStateServiceIn
+		parameter.getBoolean("BaseStateServiceIn", "initialConnect", connections.baseStateServiceIn.initialConnect);
 		parameter.getString("BaseStateServiceIn", "serviceName", connections.baseStateServiceIn.serviceName);
 		parameter.getString("BaseStateServiceIn", "serverName", connections.baseStateServiceIn.serverName);
 		parameter.getString("BaseStateServiceIn", "wiringName", connections.baseStateServiceIn.wiringName);
@@ -700,6 +733,7 @@ void ComponentRosDock::loadParameter(int argc, char *argv[])
 			parameter.getString("BaseStateServiceIn", "roboticMiddleware", connections.baseStateServiceIn.roboticMiddleware);
 		}
 		// load parameters for client LaserServiceIn
+		parameter.getBoolean("LaserServiceIn", "initialConnect", connections.laserServiceIn.initialConnect);
 		parameter.getString("LaserServiceIn", "serviceName", connections.laserServiceIn.serviceName);
 		parameter.getString("LaserServiceIn", "serverName", connections.laserServiceIn.serverName);
 		parameter.getString("LaserServiceIn", "wiringName", connections.laserServiceIn.wiringName);
@@ -780,7 +814,11 @@ void ComponentRosDock::loadParameter(int argc, char *argv[])
 			parameter.getInteger("UndockActivity", "cpuAffinity", connections.undockActivity.cpuAffinity);
 		}
 		
+		// load parameters for ComponentRosDockROS1InterfacesExtension
+		
 		// load parameters for ComponentRosDockROSExtension
+		
+		// load parameters for ComponentRosDockRestInterfacesExtension
 		
 		// load parameters for OpcUaBackendComponentGeneratorExtension
 		

@@ -38,9 +38,6 @@ ForwardActivityCore::~ForwardActivityCore()
 {
 }
 
-void ForwardActivityCore::twist_sub_cb (const geometry_msgs::Twist::ConstPtr &msg) {
-	// implement this method
-}
 
 void ForwardActivityCore::notify_all_interaction_observers() {
 	std::unique_lock<std::mutex> lock(interaction_observers_mutex);
@@ -100,7 +97,7 @@ void ForwardActivityCore::updateAllCommObjects()
 // this method is meant to be used in derived classes
 Smart::StatusCode ForwardActivityCore::navigationVelocityServiceOutPut(CommBasicObjects::CommNavigationVelocity &navigationVelocityServiceOutDataObject)
 {
-	Smart::StatusCode result = COMP->navigationVelocityServiceOut->send(navigationVelocityServiceOutDataObject);
+	Smart::StatusCode result = COMP->navigationVelocityServiceOutWrapper->send(navigationVelocityServiceOutDataObject);
 	if(useLogging == true) {
 		//FIXME: use logging
 		//Smart::LOGGER->log(pushLoggingId+1, getCurrentUpdateCount(), getPreviousCommObjId());

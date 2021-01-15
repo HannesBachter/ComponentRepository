@@ -1,11 +1,16 @@
+# target configurations for ComponentRosDockROS1InterfacesExtension
+
 # target configurations for ComponentRosDockROSExtension
 IF(EXISTS ${ROS_DIR})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${ROS_LIBS})
 ENDIF(EXISTS ${ROS_DIR})
 
+# target configurations for ComponentRosDockRestInterfacesExtension
+
 # target configurations for OpcUaBackendComponentGeneratorExtension
 IF(SeRoNetSDK_FOUND)
-#TARGET_LINK_LIBRARIES(${PROJECT_NAME} SeRoNetSDK::SeRoNetSDK)
+# SeRoNetSDK has to be linked at the minimum (in case the component does not have any ports specified for any reason)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} SeRoNetSDK::SeRoNetSDK)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommBasicObjectsOpcUa)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommNavigationObjectsOpcUa)
 ENDIF(SeRoNetSDK_FOUND)

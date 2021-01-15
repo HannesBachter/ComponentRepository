@@ -26,8 +26,6 @@
 // include all interaction-observer interfaces
 #include <UndockActivityObserverInterface.hh>
 
-#include <std_msgs/String.h>
-#include <std_msgs/String.h>
 
 class UndockActivityCore
 :	public SmartACE::ManagedTask
@@ -102,6 +100,5 @@ public:
 		return currentUpdateCount;
 	}
 	
-	void undock_action_result_cb (const std_msgs::String::ConstPtr &msg);
 };
 #endif

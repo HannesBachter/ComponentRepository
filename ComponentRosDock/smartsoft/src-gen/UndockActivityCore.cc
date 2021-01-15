@@ -38,9 +38,6 @@ UndockActivityCore::~UndockActivityCore()
 {
 }
 
-void UndockActivityCore::undock_action_result_cb (const std_msgs::String::ConstPtr &msg) {
-	// implement this method
-}
 
 void UndockActivityCore::notify_all_interaction_observers() {
 	std::unique_lock<std::mutex> lock(interaction_observers_mutex);
@@ -68,7 +65,8 @@ int UndockActivityCore::execute_protected_region()
 	if(useDefaultState) {
 		Smart::StatusCode status = COMP->stateSlave->acquire("unDock");
 		if(status != Smart::SMART_OK) {
-			std::cerr << "UndockActivityCore: ERROR acquiring state active: " << status << std::endl;
+			std::cerr << "UndockActivityCore: ERROR acquiring state: " << status << std::endl;
+			usleep(500000);
 			return 0;
 		}
 	}

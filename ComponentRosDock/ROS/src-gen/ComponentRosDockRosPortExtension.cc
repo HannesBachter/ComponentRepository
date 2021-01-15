@@ -39,9 +39,7 @@ void ComponentRosDockRosPortExtension::initialize(ComponentRosDock *component, i
 {
 	ros::init(argc, argv, "ComponentRosDock", ros::init_options::NoSigintHandler);
 	nh = new ros::NodeHandle();
-	
 	callbacksPtr = new ComponentRosDockRosPortCallbacks();
-	
 	component->rosPorts = this;
 	
 	charging_pub = nh->advertise<std_msgs::Bool>("/charging_seronet", 10);
@@ -51,6 +49,19 @@ void ComponentRosDockRosPortExtension::initialize(ComponentRosDock *component, i
 	twist_sub = nh->subscribe("/base/twist_controller/command", 10, &ComponentRosDockRosPortCallbacks::twist_sub_cb, callbacksPtr);
 	undock_action_goal = nh->advertise<std_msgs::String>("/docker_control/undock_seronet/goal", 10);
 	undock_action_result = nh->subscribe("/docker_control/undock_seronet/result", 10, &ComponentRosDockRosPortCallbacks::undock_action_result_cb, callbacksPtr);
+}
+
+void ComponentRosDockRosPortBaseClass::charging_pub_publish_ros_msg(const std_msgs::Bool &msg){
+	charging_pub.publish(msg);
+}
+void ComponentRosDockRosPortBaseClass::dock_action_goal_publish_ros_msg(const std_msgs::String &msg){
+	dock_action_goal.publish(msg);
+}
+void ComponentRosDockRosPortBaseClass::laser_pub_publish_ros_msg(const sensor_msgs::LaserScan &msg){
+	laser_pub.publish(msg);
+}
+void ComponentRosDockRosPortBaseClass::undock_action_goal_publish_ros_msg(const std_msgs::String &msg){
+	undock_action_goal.publish(msg);
 }
 
 int ComponentRosDockRosPortExtension::onStartup()

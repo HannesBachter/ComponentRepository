@@ -29,8 +29,12 @@
 class ComponentRosDockPortFactoryInterface;
 class ComponentRosDockExtension;
 
+// includes for ComponentRosDockROS1InterfacesExtension
+
 // includes for ComponentRosDockROSExtension
 #include "ComponentRosDockRosPortBaseClass.hh"
+
+// includes for ComponentRosDockRestInterfacesExtension
 
 // includes for OpcUaBackendComponentGeneratorExtension
 
@@ -57,12 +61,17 @@ class ComponentRosDockExtension;
 #include "DockActivity.hh"
 #include "ForwardActivity.hh"
 #include "UndockActivity.hh"
-// include UpcallManagers
+// include UpcallManagers and InputCollectors
 #include "BaseStateServiceInUpcallManager.hh"
+#include "BaseStateServiceInInputCollector.hh"
 #include "LaserServiceInUpcallManager.hh"
+#include "LaserServiceInInputCollector.hh"
 
 // include input-handler(s)
 // include request-handler(s)
+// output port wrappers
+#include "NavigationVelocityServiceOutWrapper.hh"
+#include "RobotDockingEventServiceOutWrapper.hh"
 
 // include handler
 #include "CompHandler.hh"
@@ -126,10 +135,12 @@ public:
 	Smart::IPushClientPattern<CommBasicObjects::CommBaseState> *baseStateServiceIn;
 	Smart::InputTaskTrigger<CommBasicObjects::CommBaseState> *baseStateServiceInInputTaskTrigger;
 	BaseStateServiceInUpcallManager *baseStateServiceInUpcallManager;
+	BaseStateServiceInInputCollector *baseStateServiceInInputCollector;
 	// InputPort LaserServiceIn
 	Smart::IPushClientPattern<CommBasicObjects::CommMobileLaserScan> *laserServiceIn;
 	Smart::InputTaskTrigger<CommBasicObjects::CommMobileLaserScan> *laserServiceInInputTaskTrigger;
 	LaserServiceInUpcallManager *laserServiceInUpcallManager;
+	LaserServiceInInputCollector *laserServiceInInputCollector;
 	
 	// define request-ports
 	
@@ -137,15 +148,21 @@ public:
 	
 	// define output-ports
 	Smart::ISendClientPattern<CommBasicObjects::CommNavigationVelocity> *navigationVelocityServiceOut;
+	NavigationVelocityServiceOutWrapper *navigationVelocityServiceOutWrapper;
 	Smart::IEventServerPattern<CommNavigationObjects::CommDockingEventParameter, CommNavigationObjects::CommDockingEventResult, CommNavigationObjects::CommDockingEventState> *robotDockingEventServiceOut;
+	RobotDockingEventServiceOutWrapper *robotDockingEventServiceOutWrapper;
 	std::shared_ptr<Smart::IEventTestHandler<CommNavigationObjects::CommDockingEventParameter, CommNavigationObjects::CommDockingEventResult, CommNavigationObjects::CommDockingEventState>> robotDockingEventServiceOutEventTestHandler;
 	
 	// define answer-ports
 	
 	// define request-handlers
 	
+	// definitions of ComponentRosDockROS1InterfacesExtension
+	
 	// definitions of ComponentRosDockROSExtension
 	ComponentRosDockRosPortBaseClass *rosPorts;
+	
+	// definitions of ComponentRosDockRestInterfacesExtension
 	
 	// definitions of OpcUaBackendComponentGeneratorExtension
 	
@@ -291,6 +308,7 @@ public:
 	
 		//--- client port parameter ---
 		struct BaseStateServiceIn_struct {
+			bool initialConnect;
 			std::string serverName;
 			std::string serviceName;
 			std::string wiringName;
@@ -298,6 +316,7 @@ public:
 			std::string roboticMiddleware;
 		} baseStateServiceIn;
 		struct LaserServiceIn_struct {
+			bool initialConnect;
 			std::string serverName;
 			std::string serviceName;
 			std::string wiringName;
@@ -313,7 +332,11 @@ public:
 			std::string roboticMiddleware;
 		} navigationVelocityServiceOut;
 		
+		// -- parameters for ComponentRosDockROS1InterfacesExtension
+		
 		// -- parameters for ComponentRosDockROSExtension
+		
+		// -- parameters for ComponentRosDockRestInterfacesExtension
 		
 		// -- parameters for OpcUaBackendComponentGeneratorExtension
 		

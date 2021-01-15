@@ -38,9 +38,6 @@ DockActivityCore::~DockActivityCore()
 {
 }
 
-void DockActivityCore::dock_action_result_cb (const std_msgs::String::ConstPtr &msg) {
-	// implement this method
-}
 
 void DockActivityCore::notify_all_interaction_observers() {
 	std::unique_lock<std::mutex> lock(interaction_observers_mutex);
@@ -68,7 +65,8 @@ int DockActivityCore::execute_protected_region()
 	if(useDefaultState) {
 		Smart::StatusCode status = COMP->stateSlave->acquire("dock");
 		if(status != Smart::SMART_OK) {
-			std::cerr << "DockActivityCore: ERROR acquiring state active: " << status << std::endl;
+			std::cerr << "DockActivityCore: ERROR acquiring state: " << status << std::endl;
+			usleep(500000);
 			return 0;
 		}
 	}
@@ -110,7 +108,7 @@ void DockActivityCore::updateAllCommObjects()
 // this method is meant to be used in derived classes
 Smart::StatusCode DockActivityCore::robotDockingEventServiceOutPut(CommNavigationObjects::CommDockingEventState &eventState)
 {
-	Smart::StatusCode result = COMP->robotDockingEventServiceOut->put(eventState);
+	Smart::StatusCode result = COMP->robotDockingEventServiceOutWrapper->put(eventState);
 	if(useLogging == true) {
 		//FIXME: use logging
 		//Smart::LOGGER->log(pushLoggingId+1, getCurrentUpdateCount(), getPreviousCommObjId());
